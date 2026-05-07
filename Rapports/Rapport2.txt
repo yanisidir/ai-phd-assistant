@@ -1,0 +1,223 @@
+AI PhD Application Assistant — Rapport d’Avancement (Phase Scraping)
+
+---
+
+1. Objectif du projet
+
+Le projet a pour objectif de créer un assistant capable de :
+
+* trouver automatiquement des offres de thèse (PhD)
+* les filtrer selon un profil scientifique (physique des particules)
+* structurer les données
+* préparer à terme des candidatures automatisées
+
+---
+
+2. Évolution du projet
+
+Le projet a suivi trois phases principales :
+
+Phase 1 — Prototype IA
+
+* Scraping manuel (BeautifulSoup)
+* Analyse via LLM local (Ollama)
+* Génération de score et décision
+
+Limites :
+
+* instabilité du scraping
+* blocage par Cloudflare
+* performances faibles (MacBook Air)
+* consommation élevée du LLM
+
+---
+
+Phase 2 — Recentrage Data (pivot stratégique)
+Décision :
+
+* désactiver complètement le LLM
+* se concentrer sur un pipeline de données robuste
+
+Objectif :
+→ obtenir des données fiables avant toute intelligence artificielle
+
+---
+
+Phase 3 — Scraping avancé avec Crawl4AI + API
+
+Architecture actuelle :
+
+InspireHEP → requests API
+Academic Positions → Crawl4AI
+
+Pourquoi ce choix :
+
+* InspireHEP fournit une API structurée → rapide et fiable
+* Academic Positions nécessite un navigateur → Crawl4AI adapté
+
+---
+
+3. Pipeline actuel
+
+Le pipeline fonctionne comme suit :
+
+Sources multiples
+↓
+Extraction (requests + Crawl4AI)
+↓
+Nettoyage des données
+↓
+Filtrage (PhD uniquement)
+↓
+Déduplication
+↓
+Stockage SQLite
+↓
+Affichage console / Streamlit
+
+---
+
+4. Données extraites
+
+Chaque offre contient :
+
+* title
+* link
+* description (nettoyée)
+* source
+* laboratory
+* location
+* deadline
+* contact
+
+---
+
+5. Améliorations techniques réalisées
+
+Scraping :
+
+* utilisation de l’API InspireHEP avec tri par offres récentes et ouvertes
+* fallback Crawl4AI supprimé pour InspireHEP
+* extraction robuste des liens Academic Positions (/ad/)
+
+Nettoyage :
+
+* suppression du HTML (BeautifulSoup)
+* suppression du bruit (menus, flags, Apply now)
+* descriptions raccourcies et exploitables
+
+Filtrage :
+
+* inclusion : phd, doctoral, predoctoral
+* exclusion : postdoc, professor, faculty, group leader
+* suppression des offres expirées (deadline)
+
+Qualité :
+
+* correction des titres InspireHEP
+* gestion des doublons
+* remplacement des liens vides
+
+Debug :
+
+* affichage des hits bruts
+* affichage des raisons de rejet
+* suivi des longueurs de description
+
+---
+
+6. Résultats actuels
+
+Exécution de main.py :
+
+* InspireHEP : 40 offres récupérées → 5 retenues
+* Academic Positions : 30 offres récupérées → 5 retenues
+* Total : 10 offres uniques
+
+Les offres sont :
+
+* pertinentes (PhD en physique / data / ML)
+* à jour (filtrage deadline)
+* lisibles (description nettoyée)
+* stockées en base SQLite
+
+---
+
+7. Base de données
+
+SQLite est utilisée pour :
+
+* stocker les offres
+* éviter les doublons (clé unique sur link)
+* préparer les étapes futures
+
+Évolution en cours :
+
+* ajout des colonnes :
+
+  * source
+  * laboratory
+  * location
+  * deadline
+  * contact
+  * status
+  * email
+
+---
+
+8. Points forts actuels
+
+* pipeline stable et reproductible
+* multi-sources (API + scraping avancé)
+* données propres et exploitables
+* faible consommation machine (pas de LLM)
+* architecture modulaire
+
+---
+
+9. Limites actuelles
+
+* certaines informations manquantes (laboratory, location)
+* parsing encore imparfait selon les sites
+* pas encore de scoring automatique
+* pas de priorisation intelligente
+* pas d’automatisation des candidatures
+
+---
+
+10. Prochaines étapes
+
+Court terme :
+
+* finaliser le schéma SQLite
+* améliorer extraction des métadonnées
+* interface Streamlit enrichie (tri, filtres, affichage)
+
+Moyen terme :
+
+* scoring sans IA (keywords, règles)
+* classement automatique des offres
+* système de suivi (candidaté / à faire)
+
+Long terme :
+
+* réintégration d’un LLM (API externe)
+* génération de mails personnalisés
+* agent autonome de candidature
+* intégration Gmail / calendrier
+
+---
+
+11. Conclusion
+
+Le projet a réussi une transition critique :
+→ passage d’un prototype fragile basé sur l’IA
+→ à un système robuste centré sur la donnée
+
+Le pipeline actuel constitue une base solide pour :
+
+* ajouter de l’intelligence
+* automatiser les candidatures
+* construire un véritable assistant de recherche de thèse
+
+---

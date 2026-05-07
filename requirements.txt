@@ -1,0 +1,22 @@
+# Scraping
+requests
+beautifulsoup4
+
+# Data
+pandas
+
+# Interface
+streamlit
+
+# Base de données
+sqlalchemy
+
+# LLM local avec Ollama
+ollama
+
+# Utilitaires
+python-dotenv
+tqdm
+
+# Browser crawling
+crawl4ai

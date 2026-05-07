@@ -1,0 +1,20 @@
+{
+  "interests": [
+    "particle physics",
+    "high energy physics",
+    "LHC",
+    "ATLAS",
+    "CMS",
+    "neutrino",
+    "astroparticle",
+    "cosmology",
+    "machine learning",
+    "data analysis"
+  ],
+  "negative_interests": [
+    "biology",
+    "chemistry",
+    "medical",
+    "life sciences"
+  ]
+}

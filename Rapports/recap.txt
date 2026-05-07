@@ -1,0 +1,231 @@
+# AI PhD Application Assistant — Vision et Plan de Développement
+
+## 1. Objectif du projet
+
+Développer un outil intelligent permettant d’automatiser la recherche, l’analyse et la préparation de candidatures à des offres de thèse en physique (ou domaines proches), en combinant :
+
+* scraping web
+* traitement de données
+* intelligence artificielle (LLM)
+* automatisation
+
+L’objectif final est de gagner du temps, améliorer la pertinence des candidatures et structurer le processus.
+
+---
+
+## 2. Problématique
+
+Chercher une thèse est un processus :
+
+* long (beaucoup de sites à consulter)
+* répétitif (lecture d’offres similaires)
+* peu structuré (difficile de comparer les offres)
+* chronophage (rédaction de mails personnalisés)
+
+Le projet vise à transformer cela en un **pipeline automatisé et intelligent**.
+
+---
+
+## 3. Fonctionnalités principales
+
+### 3.1 Collecte des offres (Scraping)
+
+Récupérer automatiquement des offres depuis plusieurs sources :
+
+* Academic Positions
+* Euraxess
+* InspireHEP Jobs
+* sites de laboratoires
+* universités
+
+Données extraites :
+
+* titre
+* description
+* lien
+* laboratoire
+* localisation
+* date limite
+* contact (si disponible)
+
+---
+
+### 3.2 Nettoyage et structuration
+
+Transformer les données brutes en format exploitable :
+
+* suppression du HTML
+* normalisation des champs
+* structuration en dictionnaires / DataFrame
+
+---
+
+### 3.3 Analyse avec IA (LLM)
+
+Pour chaque offre :
+
+* calcul d’un **score de pertinence**
+* génération d’un **résumé**
+* identification des **points clés**
+* extraction des **compétences demandées**
+
+Critères basés sur ton profil :
+
+* physique des particules
+* phénoménologie
+* analyse de données
+* machine learning
+* expérience ROOT / C++ / Python
+
+---
+
+### 3.4 Génération de mails
+
+Création automatique d’un mail de candidature :
+
+* adapté à l’offre
+* mettant en avant ton profil
+* ton professionnel
+* personnalisé
+
+Important : validation humaine avant envoi.
+
+---
+
+### 3.5 Stockage
+
+Sauvegarde des résultats :
+
+* SQLite ou CSV
+* historique des offres
+* suivi des candidatures
+
+Champs :
+
+* titre
+* score
+* résumé
+* mail généré
+* statut (à faire / envoyé / rejeté)
+
+---
+
+### 3.6 Interface utilisateur
+
+Interface simple (Streamlit) pour :
+
+* visualiser les offres
+* trier par score
+* lire les résumés
+* consulter les mails générés
+* suivre les candidatures
+
+---
+
+## 4. Architecture du système
+
+```text
+Scraping → Parsing → IA → Stockage → Interface
+```
+
+Modules :
+
+* scraping/ → récupération des données
+* processing/ → nettoyage + scoring
+* ai/ → interaction LLM (Ollama)
+* email/ → génération de mails
+* app/ → interface utilisateur
+* data/ → stockage
+
+---
+
+## 5. Technologies utilisées
+
+* Python
+* BeautifulSoup (scraping)
+* pandas (data)
+* Ollama (LLM local)
+* SQLite (base de données)
+* Streamlit (interface)
+
+---
+
+## 6. Roadmap de développement
+
+### V1 — Prototype fonctionnel
+
+* offre simulée
+* analyse avec LLM
+* affichage console
+
+### V2 — Scraping réel
+
+* 1 site (Academic Positions)
+* extraction réelle
+
+### V3 — Scoring avancé
+
+* prompt optimisé
+* format structuré (JSON)
+
+### V4 — Stockage
+
+* SQLite
+* historique des offres
+
+### V5 — Génération de mails
+
+* mails personnalisés
+* amélioration du style
+
+### V6 — Interface
+
+* Streamlit
+* tableau interactif
+
+### V7 — Multi-sources
+
+* Euraxess
+* InspireHEP
+* labos
+
+---
+
+## 7. Évolutions possibles
+
+* système de recommandations
+* apprentissage des préférences utilisateur
+* intégration Gmail (brouillons automatiques)
+* automatisation avec n8n
+* export PDF des candidatures
+* dashboard complet
+
+---
+
+## 8. Valeur du projet
+
+Ce projet démontre :
+
+* compétences en data engineering
+* utilisation de LLM en pratique
+* automatisation de workflow
+* structuration logicielle propre
+* lien direct avec ton objectif (PhD)
+
+Peut être valorisé sur :
+
+* GitHub
+* CV
+* candidatures en thèse / data science
+
+---
+
+## 9. Conclusion
+
+Le projet vise à transformer un processus manuel et dispersé en un **système intelligent, structuré et automatisé**, adapté à ton profil et évolutif.
+
+Approche recommandée :
+
+* commencer simple
+* itérer rapidement
+* améliorer progressivement chaque module

@@ -1,0 +1,186 @@
+AI PhD Application Assistant — Rapport de Développement
+
+1. Objectif du projet
+
+Le projet vise à développer un outil permettant d’automatiser la recherche d’offres de thèse (PhD) en physique, leur extraction, leur structuration et leur exploitation, dans le but de faciliter les candidatures.
+
+L’objectif est de remplacer un processus manuel long et peu structuré par un pipeline automatisé.
+
+---
+
+2. Première approche
+
+Au départ, le projet reposait sur :
+
+* Scraping manuel avec requests + BeautifulSoup
+* Analyse des offres avec un LLM local (Ollama)
+* Génération de scores et de mails
+* Interface avec Streamlit
+
+Limites rencontrées :
+
+* Sites bloqués (Cloudflare)
+* HTML instable
+* Scraping fragile
+* Ollama très gourmand (MacBook Air surchauffe)
+* Latence importante
+
+---
+
+3. Pivot stratégique
+
+Face aux limitations, une décision a été prise :
+
+* Suspendre l’utilisation du LLM
+* Se concentrer sur un scraping fiable et propre
+* Optimiser le pipeline data avant l’IA
+
+---
+
+4. Introduction de Crawl4AI
+
+Le projet a évolué vers l’utilisation de Crawl4AI :
+
+Avantages :
+
+* Gestion automatique du rendu web (Playwright)
+* Extraction HTML + Markdown
+* Moins de dépendance à la structure HTML
+* Plus robuste face aux sites dynamiques
+
+Deux modules ont été intégrés :
+
+4.1 crawl4ai_inspirehep.py
+
+* Source principale
+* Utilisation de l’API InspireHEP
+* Fallback sur scraping web
+* Extraction :
+
+  * titre
+  * description
+  * lien
+  * laboratoire
+  * localisation
+  * deadline
+  * contact
+
+4.2 crawl4ai_academic_positions.py
+
+* Source secondaire
+* Extraction via HTML + Markdown
+* Filtrage des liens pertinents
+* Enrichissement des données via crawling des pages individuelles
+
+---
+
+5. Pipeline actuel
+
+Le pipeline final est :
+
+Sources (InspireHEP + Academic Positions)
+↓
+Crawl4AI (scraping robuste)
+↓
+Filtrage (PhD uniquement)
+↓
+Nettoyage des données
+↓
+Déduplication
+↓
+Stockage SQLite
+↓
+Affichage (console / Streamlit)
+
+---
+
+6. Structure des données
+
+Chaque offre contient :
+
+* title
+* link
+* description
+* laboratory
+* location
+* deadline
+* contact
+* source
+
+---
+
+7. Base de données
+
+Utilisation de SQLite :
+
+* stockage des offres
+* gestion des doublons (clé unique sur link)
+* préparation pour ajout futur :
+
+  * scoring
+  * statut candidature
+  * mails
+
+---
+
+8. Résultats obtenus
+
+Le scraping permet maintenant :
+
+* récupération fiable d’offres réelles
+* filtrage des offres non pertinentes (postdoc, faculty, etc.)
+* extraction de contenu propre (texte exploitable)
+* centralisation multi-sources
+
+Le système est stable sans surcharge machine.
+
+---
+
+9. Limites actuelles
+
+* titres parfois manquants ou approximatifs
+* certaines descriptions incomplètes
+* pas encore de scoring avancé
+* pas d’automatisation des candidatures
+* dépendance aux sources externes
+
+---
+
+10. Perspectives
+
+Améliorations possibles :
+
+Court terme :
+
+* scoring par mots-clés (sans IA)
+* tri automatique des offres
+* amélioration de l’interface Streamlit
+
+Moyen terme :
+
+* réintroduction du LLM (API externe plutôt que local)
+* génération de mails personnalisés
+* système de suivi des candidatures
+
+Long terme :
+
+* agent IA autonome
+* automatisation complète du pipeline
+* intégration avec Gmail / LinkedIn
+* système de recommandation intelligent
+
+---
+
+11. Conclusion
+
+Le projet a évolué d’un prototype centré sur l’IA vers une architecture data-first plus robuste.
+
+Cette approche permet :
+
+* une meilleure fiabilité
+* une meilleure performance
+* une base solide pour intégrer de l’IA ensuite
+
+Le système actuel constitue un pipeline complet de collecte et structuration d’offres de thèse, prêt à être enrichi.
+
+---
