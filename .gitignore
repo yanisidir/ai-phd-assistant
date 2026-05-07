@@ -2,3 +2,8 @@ __pycache__/
 *.pyc
 .env
 data/offers.db
+venv/
+__pycache__/
+*.pyc
+.env
+data/offers.db
