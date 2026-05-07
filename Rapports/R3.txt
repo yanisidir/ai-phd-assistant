@@ -1,0 +1,404 @@
+# Rapport d’avancement — AI PhD Assistant
+
+## Objectif du projet
+
+Le projet **AI PhD Assistant** a pour objectif de créer une plateforme automatisée de recherche, filtrage et suivi d’offres de thèse (PhD), principalement orientées physique des particules, astrophysique, instrumentation et domaines scientifiques associés.
+
+Le système doit :
+
+* récupérer automatiquement des offres depuis plusieurs sources,
+* filtrer les offres pertinentes,
+* scorer les offres selon le profil du candidat,
+* sauvegarder les résultats dans une base SQLite,
+* permettre le suivi des candidatures via une interface Streamlit,
+* fonctionner sans dépendre d’un LLM local ou d’Ollama.
+
+---
+
+# Architecture actuelle
+
+Le projet est actuellement organisé autour de plusieurs blocs :
+
+```text
+Scrapers
+    ↓
+Nettoyage / Parsing
+    ↓
+Scoring
+    ↓
+SQLite
+    ↓
+Interface Streamlit
+```
+
+---
+
+# Sources intégrées
+
+## 1. InspireHEP
+
+Source principale orientée :
+
+* physique des particules,
+* théorie,
+* instrumentation,
+* neutrinos,
+* IA appliquée à la physique.
+
+### Fonctionnalités mises en place
+
+* utilisation de l’API officielle InspireHEP :
+
+```text
+https://inspirehep.net/api/jobs
+```
+
+* paramètres utilisés :
+
+```text
+sort=mostrecent
+status=open
+size=40
+```
+
+* nettoyage HTML des descriptions avec BeautifulSoup,
+* extraction :
+
+  * titre,
+  * laboratoire,
+  * deadline,
+  * lien,
+  * description,
+* suppression des deadlines expirées,
+* gestion des liens vides,
+* déduplication stable.
+
+---
+
+## 2. Academic Positions
+
+Source secondaire plus généraliste.
+
+### Fonctionnalités mises en place
+
+* scraping via Crawl4AI,
+* suppression du bruit :
+
+  * Apply now,
+  * Jobs from this employer,
+  * liens markdown,
+  * textes parasites,
+* nettoyage des descriptions,
+* extraction des métadonnées principales.
+
+---
+
+# Filtrage des offres
+
+Le système applique plusieurs niveaux de filtrage.
+
+## Filtrage de type d’offre
+
+Les offres suivantes sont rejetées :
+
+* postdoc,
+* faculty,
+* professor,
+* research associate,
+* senior researcher.
+
+Les offres contenant :
+
+* phd,
+* doctoral
+
+sont conservées.
+
+---
+
+# Nettoyage et déduplication
+
+Chaque offre est normalisée avant sauvegarde.
+
+### Nettoyage réalisé
+
+* suppression HTML,
+* suppression blocs inutiles,
+* normalisation des liens,
+* suppression doublons,
+* suppression descriptions vides.
+
+---
+
+# Base de données SQLite
+
+## Schéma actuel
+
+La table `offers` contient maintenant 14 colonnes :
+
+```text
+title
+link
+description
+score
+summary
+decision
+source
+laboratory
+location
+deadline
+contact
+status
+created_at
+updated_at
+```
+
+---
+
+## Migration automatique
+
+Le système vérifie automatiquement les colonnes présentes via :
+
+```sql
+PRAGMA table_info(offers)
+```
+
+Les colonnes manquantes sont ajoutées dynamiquement avec :
+
+```sql
+ALTER TABLE
+```
+
+Aucune suppression de données historiques n’est effectuée.
+
+---
+
+# Système de scoring
+
+## Objectif
+
+Prioriser automatiquement les offres pertinentes selon le profil scientifique du candidat.
+
+---
+
+## Profil utilisateur
+
+Le profil est externalisé dans :
+
+```text
+data/profile.json
+```
+
+Le scoring ne contient plus de mots-clés hardcodés.
+
+---
+
+## Fonctionnement
+
+Le score dépend :
+
+* des intérêts positifs,
+* des intérêts négatifs,
+* de l’ordre des intérêts dans le profil.
+
+### Pondération actuelle
+
+```text
+positions 1-2   → +30
+positions 3-5   → +20
+positions 6-8   → +15
+positions 9-10  → +10
+```
+
+---
+
+## Décisions automatiques
+
+| Score | Décision   |
+| ----- | ---------- |
+| ≥ 60  | candidater |
+| 30–59 | a_verifier |
+| < 30  | ignorer    |
+
+---
+
+# Filtrage des offres faibles
+
+Les offres jugées non pertinentes :
+
+* ne sont plus sauvegardées,
+* sont automatiquement supprimées de la base.
+
+---
+
+## Protection des candidatures
+
+Les offres avec :
+
+```text
+status = applied
+status = accepted
+```
+
+ne sont jamais supprimées, même avec un faible score.
+
+---
+
+# Système de suivi des candidatures
+
+## Statuts disponibles
+
+```text
+to_apply
+applied
+rejected
+accepted
+```
+
+---
+
+## Fonctionnalités
+
+* conservation des statuts après re-scraping,
+* modification directe depuis Streamlit,
+* sauvegarde SQLite immédiate.
+
+---
+
+# Interface Streamlit
+
+## Fonctionnalités actuelles
+
+### Tableau principal
+
+Affichage :
+
+* source,
+* titre,
+* laboratoire,
+* deadline,
+* score,
+* décision,
+* statut.
+
+---
+
+## Filtres disponibles
+
+* filtre par source,
+* filtre par statut,
+* filtre par décision,
+* checkbox :
+
+```text
+Voir seulement to_apply
+```
+
+---
+
+## Vue détaillée
+
+Pour chaque offre :
+
+* description complète,
+* lien cliquable,
+* statut modifiable.
+
+---
+
+# Suppression du LLM
+
+Le pipeline fonctionne maintenant sans :
+
+* Ollama,
+* scoring IA,
+* génération automatique d’emails.
+
+Tous les imports LLM ont été retirés :
+
+* parser,
+* Streamlit,
+* logique de sauvegarde.
+
+Le système actuel repose uniquement sur :
+
+* règles déterministes,
+* mots-clés,
+* profil utilisateur.
+
+---
+
+# Vérifications réalisées
+
+## Vérifications fonctionnelles
+
+Tests effectués avec succès :
+
+* scraping InspireHEP,
+* scraping Academic Positions,
+* scoring automatique,
+* suppression offres faibles,
+* sauvegarde SQLite,
+* migration automatique,
+* conservation des statuts,
+* affichage Streamlit,
+* nettoyage DB.
+
+---
+
+## Vérifications SQLite
+
+Requête test :
+
+```sql
+SELECT title, score, decision, status
+FROM offers
+WHERE score < 30 OR decision = 'ignorer';
+```
+
+Résultat :
+
+* aucune ligne restante non protégée.
+
+---
+
+# État actuel du projet
+
+Le projet est maintenant :
+
+* stable,
+* cohérent,
+* présentable,
+* utilisable quotidiennement.
+
+Le pipeline complet fonctionne de manière autonome sans LLM.
+
+---
+
+# Prochaines évolutions possibles
+
+## Court terme
+
+* README GitHub complet,
+* export CSV,
+* export PDF,
+* ajout d’autres sources PhD,
+* système de favoris.
+
+---
+
+## Moyen terme
+
+* notifications automatiques,
+* matching plus avancé,
+* embeddings locaux,
+* moteur de recommandation hybride.
+
+---
+
+## Long terme
+
+* assistant complet de gestion de candidatures scientifiques,
+* génération de lettres adaptées,
+* analyse automatique CV ↔ offre,
+* dashboard analytique.
